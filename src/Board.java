@@ -21,8 +21,7 @@ public class Board extends JPanel implements MouseListener, MouseMotionListener 
     private int currentX;
     private int currentY;
 
-    // TODO: add later
-    //private CheckmateDetector cmd;
+    private CheckMate cmd;
 
     public Board(GameScreen gameScreen) {
         this.gameScreen = gameScreen;
@@ -65,8 +64,8 @@ public class Board extends JPanel implements MouseListener, MouseMotionListener 
         }
 
         // Queens
-        board[0][3].placePiece(new Pawn(0, board[0][3], "black_queen.png"));
-        board[7][3].placePiece(new Pawn(1, board[7][3], "white_queen.png"));
+        board[0][3].placePiece(new Queen(0, board[0][3], "black_queen.png"));
+        board[7][3].placePiece(new Queen(1, board[7][3], "white_queen.png"));
         
         // Kings
         King blackKing = new King(0, board[0][4], "black_king.png");
@@ -75,22 +74,22 @@ public class Board extends JPanel implements MouseListener, MouseMotionListener 
         board[7][4].placePiece(whiteKing);
 
         // Rooks
-        board[0][0].placePiece(new Pawn(0, board[0][0], "black_rook.png"));
-        board[0][7].placePiece(new Pawn(0, board[0][7], "black_rook.png"));
-        board[7][0].placePiece(new Pawn(1, board[7][0], "white_rook.png"));
-        board[7][7].placePiece(new Pawn(1, board[7][7], "white_rook.png"));
+        board[0][0].placePiece(new Rook(0, board[0][0], "black_rook.png"));
+        board[0][7].placePiece(new Rook(0, board[0][7], "black_rook.png"));
+        board[7][0].placePiece(new Rook(1, board[7][0], "white_rook.png"));
+        board[7][7].placePiece(new Rook(1, board[7][7], "white_rook.png"));
         
         // Knights
-        board[0][1].placePiece(new Pawn(0, board[0][1], "black_knight.png"));
-        board[0][6].placePiece(new Pawn(0, board[0][6], "black_knight.png"));
-        board[7][1].placePiece(new Pawn(1, board[7][1], "white_knight.png"));
-        board[7][6].placePiece(new Pawn(1, board[7][6], "white_knight.png"));
+        board[0][1].placePiece(new Knight(0, board[0][1], "black_knight.png"));
+        board[0][6].placePiece(new Knight(0, board[0][6], "black_knight.png"));
+        board[7][1].placePiece(new Knight(1, board[7][1], "white_knight.png"));
+        board[7][6].placePiece(new Knight(1, board[7][6], "white_knight.png"));
         
         // Bishops
-        board[0][2].placePiece(new Pawn(0, board[0][2], "black_bishop.png"));
-        board[0][5].placePiece(new Pawn(0, board[0][5], "black_bishop.png"));
-        board[7][2].placePiece(new Pawn(1, board[7][2], "white_bishop.png"));
-        board[7][5].placePiece(new Pawn(1, board[7][5], "white_bishop.png"));
+        board[0][2].placePiece(new Bishop(0, board[0][2], "black_bishop.png"));
+        board[0][5].placePiece(new Bishop(0, board[0][5], "black_bishop.png"));
+        board[7][2].placePiece(new Bishop(1, board[7][2], "white_bishop.png"));
+        board[7][5].placePiece(new Bishop(1, board[7][5], "white_bishop.png"));
 
         for(int y = 0; y < 2; y++) {
             for(int x = 0; x < 8; x++) {
@@ -99,8 +98,7 @@ public class Board extends JPanel implements MouseListener, MouseMotionListener 
             }
         }
 
-        // TODO: add later
-        // cmd = new CheckmateDetector(this, whitePieces, blackPieces, whiteKing, blackKing);
+         cmd = new CheckMate(this, whiteKing, blackKing, whitePieces, blackPieces);
     }
 
     public Square[][] getBoard() {
@@ -143,14 +141,75 @@ public class Board extends JPanel implements MouseListener, MouseMotionListener 
 
     @Override
     public void mousePressed(MouseEvent e) {
+        currentX = e.getX();
+        currentY = e.getY();
+        Square s = (Square) this.getComponentAt(new Point(e.getX(), e.getY()));
 
+        if(s.isOccupied()) {
+            currentPiece = s.getOccPiece();
+            if(currentPiece.getColor() == 0 && whiteTurn) {
+                return;
+            }
+            if(currentPiece.getColor() == 1 && !whiteTurn) {
+                return;
+            }
+            s.setDisplayPiece(false);
+        }
+        repaint();
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        Square s = (Square) this.getComponentAt(new Point(e.getX(), e.getY()));
 
+        if(currentPiece.getColor() == 0 && whiteTurn) {
+            return;
+        }
+        if(currentPiece.getColor() == 1 && !whiteTurn) {
+            return;
+        }
+
+        List<Square> legalMoves = currentPiece.getLegalMoves(this);
+
+        movable = cmd.getAllowedSquares(whiteTurn);
+
+        if(legalMoves.contains(s) && movable.contains(s) && cmd.testMove(currentPiece, s)) {
+            s.setDisplayPiece(true);
+            currentPiece.move(s);
+            cmd.update();
+
+            if(cmd.blackCheckmated()) {
+                currentPiece = null;
+                repaint();
+                this.removeMouseListener(this);
+                this.removeMouseMotionListener(this);
+                gameScreen.checkmate(0);
+            } else if(cmd.whiteCheckmated()) {
+                currentPiece = null;
+                repaint();
+                this.removeMouseListener(this);
+                this.removeMouseMotionListener(this);
+                gameScreen.checkmate(1);
+            } else {
+                currentPiece = null;
+                whiteTurn = !whiteTurn;
+                movable = cmd.getAllowedSquares(whiteTurn);
+            }
+        } else {
+            currentPiece.getPosition().setDisplayPiece(true);
+            currentPiece = null;
+        }
+
+        repaint();
     }
 
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        currentX = e.getX() - 24;
+        currentY = e.getY() - 24;
+    }
+
+    // the following functions aren't needed
     @Override
     public void mouseEntered(MouseEvent e) {
 
@@ -158,11 +217,6 @@ public class Board extends JPanel implements MouseListener, MouseMotionListener 
 
     @Override
     public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
 
     }
 

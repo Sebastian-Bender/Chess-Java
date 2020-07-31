@@ -49,4 +49,16 @@ public class GameScreen {
         gameFrame.setVisible(true);
         gameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
+
+    public void checkmate(int c) {
+        /*if(c == 0) {
+            int n = JOptionPane.showConfirmDialog(gameFrame, "White wins by checkmate!", JOptionPane.YES_NO_OPTION);
+            if(n == JOptionPane.YES_OPTION) {
+                SwingUtilities.invokeLater(new StartScreen());
+                gameFrame.dispose();
+            }
+        }
+         */
+        gameFrame.dispose();
+    }
 }

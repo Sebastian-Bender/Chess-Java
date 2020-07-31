@@ -33,10 +33,13 @@ public abstract class Piece {
         if(occPiece != null) {
             if(occPiece.getColor() == this.getColor()) {
                 return false;
+            } else {
+                moveTo.capturePiece(this);
             }
-            moveTo.capturePiece(this);
         }
-
+        currentSquare.removePiece();
+        this.currentSquare = moveTo;
+        currentSquare.placePiece(this);
         return true;
     }
 
@@ -62,7 +65,6 @@ public abstract class Piece {
         g.drawImage(this.img, x, y, null);
     }
 
-    // TODO: FIND ANOTHER METHOD
     public int[] getLinearOccupations(Square[][] board, int x, int y) {
         // {last y above, last x right, last y below, last x left}
         int[] occupations = {0, 7, 7, 0};
@@ -89,19 +91,21 @@ public abstract class Piece {
 
 
         for(int i = 7; i > y; i--) {
-            if(board[i][x].getOccPiece().getColor() != this.color) {
-                occupations[2] = i;
-            } else {
-                occupations[2] = i - 1;
+            if(board[i][x].isOccupied()) {
+                if(board[i][x].getOccPiece().getColor() != this.color) {
+                    occupations[2] = i;
+                } else {
+                    occupations[2] = i - 1;
+                }
             }
         }
 
         for(int i = 0; i < x; i++) {
             if(board[y][i].isOccupied()) {
                 if(board[y][i].getOccPiece().getColor() != this.color) {
-                    occupations[1] = i;
+                    occupations[3] = i;
                 } else {
-                    occupations[1] = i + 1;
+                    occupations[3] = i + 1;
                 }
             }
         }
@@ -109,7 +113,6 @@ public abstract class Piece {
         return occupations;
     }
 
-    // TODO: FIND ANOTHER METHOD
     public List<Square> getDiagonalOccupations(Square[][] board, int x, int y) {
         LinkedList<Square> occupations = new LinkedList<Square>();
 
