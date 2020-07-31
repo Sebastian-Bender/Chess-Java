@@ -1,7 +1,7 @@
 # Chess-Java
 Simple chess game made in java
 
-# TODO
+## TODO
   - some bug fixing
   - improve checkmate detection
   - network functionality
