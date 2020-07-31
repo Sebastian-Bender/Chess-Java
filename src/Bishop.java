@@ -6,6 +6,9 @@ public class Bishop extends Piece{
     }
     @Override
     public List<Square> getLegalMoves(Board b) {
-        return null;
+        Square[][] board = b.getBoard();
+        int x = this.getPosition().getxNum();
+        int y = this.getPosition().getyNum();
+        return getDiagonalOccupations(board, x, y);
     }
 }

@@ -1,6 +1,8 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class StartScreen implements Runnable {
@@ -8,7 +10,8 @@ public class StartScreen implements Runnable {
     public void run() {
         JFrame startFrame = new JFrame("Chess");
         startFrame.setResizable(false);
-        startFrame.setSize(300, 300);
+        startFrame.setLocation(200, 200);
+        startFrame.setSize(260, 240);
         Box components = Box.createVerticalBox();
         startFrame.add(components);
         final JPanel titlePanel = new JPanel();
@@ -42,9 +45,30 @@ public class StartScreen implements Runnable {
         }
 
         Box buttonBox = Box.createHorizontalBox();
-        
+        final JButton quit = new JButton("Quit");
+        quit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startFrame.dispose();
+            }
+        });
 
+        final JButton start = new JButton("start game");
+        start.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new GameScreen();
+                startFrame.dispose();
+            }
+        });
 
+        // add buttons
+        buttonBox.add(start);
+        buttonBox.add(Box.createHorizontalStrut(20));
+        buttonBox.add(quit);
+        components.add(buttonBox);
+
+        startFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         startFrame.setVisible(true);
     }
 }
