@@ -167,7 +167,7 @@ public abstract class Piece {
             } else {
                 occupations.add(board[ySE][xSE]);
                 ySE++;
-                xSE--;
+                xSE++;
             }
         }
 
