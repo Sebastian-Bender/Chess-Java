@@ -31,7 +31,7 @@ public abstract class Piece {
     public boolean move(Square moveTo) {
         Piece occPiece = moveTo.getOccPiece();
         if(occPiece != null) {
-            if(occPiece.getColor() == this.getColor()) {
+            if(occPiece.getColor() == this.color) {
                 return false;
             } else {
                 moveTo.capturePiece(this);
