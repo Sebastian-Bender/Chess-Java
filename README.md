@@ -6,3 +6,4 @@ Simple chess game made in java
   - improve checkmate detection
   - network functionality
   - chess AI
+  - add castling 
